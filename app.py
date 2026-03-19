@@ -77,11 +77,5 @@ def convert():
         return jsonify({'error': str(e)}), 500
 
 
-# Для локальной разработки
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-# Для Vercel (serverless handler)
-def handler(request):
-    return app(request.environ, lambda *args: None)
+# Экспорт для Vercel
+handler = app
