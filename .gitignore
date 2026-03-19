@@ -40,3 +40,9 @@ DEPLOY.md
 static/favicon.ico
 static/apple-touch-icon.png
 static/og-image.png
+
+# Локальные файлы
+uploads/*
+!uploads/.gitkeep
+*.pyc
+__pycache__/

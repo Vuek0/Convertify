@@ -3,13 +3,11 @@
 """
 import os
 import uuid
+import tempfile
 from flask import Flask, render_template, request, send_file, jsonify
 from services.converter import convert_image, get_supported_formats
 
 app = Flask(__name__)
-
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB лимит
 
@@ -50,18 +48,16 @@ def convert():
     output_format = request.form.get('format', 'pdf')
 
     try:
-        # Сохраняем временный файл
-        unique_id = uuid.uuid4().hex
-        ext = os.path.splitext(file.filename)[1]
-        filename = f"{unique_id}{ext}"
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
+        # Используем временную директорию (для Vercel это /tmp)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp_file:
+            file.save(tmp_file.name)
+            temp_path = tmp_file.name
 
         # Конвертируем
-        pdf_bytes, mime_type, ext = convert_image(filepath, output_format)
+        pdf_bytes, mime_type, ext = convert_image(temp_path, output_format)
 
         # Удаляем временный файл
-        os.remove(filepath)
+        os.remove(temp_path)
 
         # Формируем имя выходного файла
         output_filename = os.path.splitext(file.filename)[0] + ext
@@ -77,5 +73,10 @@ def convert():
         return jsonify({'error': str(e)}), 500
 
 
-# Экспорт для Vercel
+# Для локальной разработки
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
+
+# Экспорт для Vercel (serverless handler)
 handler = app
