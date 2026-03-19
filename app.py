@@ -1,5 +1,5 @@
 """
-Основное приложение Flask.
+Основное приложение Flask для Convertify.
 """
 import os
 import uuid
@@ -7,8 +7,8 @@ import tempfile
 from flask import Flask, render_template, request, send_file, jsonify
 from services.converter import convert_image, get_supported_formats
 
+# Создаём Flask приложение
 app = Flask(__name__)
-
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB лимит
 
 
@@ -73,11 +73,12 @@ def convert():
         return jsonify({'error': str(e)}), 500
 
 
+# Точка входа для Vercel Serverless Functions
+def vercel_app(environ, start_response):
+    """WSGI handler для Vercel."""
+    return app(environ, start_response)
+
+
 # Для локальной разработки
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-
-
-# Экспорт для Vercel (явный WSGI handler)
-def handler(request, start_response):
-    return app(request.environ, start_response)
