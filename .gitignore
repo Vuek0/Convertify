@@ -22,6 +22,11 @@ uploads/*
 *.png
 *.jpg
 *.jpeg
+# Кроме favicon
+!static/favicon.ico
+!static/apple-touch-icon.png
+!static/og-image.png
+!static/*.png
 
 # OS
 .DS_Store
