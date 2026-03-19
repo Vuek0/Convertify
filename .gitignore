@@ -37,9 +37,9 @@ DEPLOY.md
 .vercel
 
 # Favicon заглушки (нужно заменить на реальные изображения)
-static/favicon.ico
-static/apple-touch-icon.png
-static/og-image.png
+# static/favicon.ico
+# static/apple-touch-icon.png
+# static/og-image.png
 
 # Локальные файлы
 uploads/*
