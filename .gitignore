@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Файлы
+uploads/*
+!uploads/.gitkeep
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
+
+# Документация (не для репозитория)
+DEPLOY.md
+
+# Vercel
+.vercel
+
+# Favicon заглушки (нужно заменить на реальные изображения)
+static/favicon.ico
+static/apple-touch-icon.png
+static/og-image.png

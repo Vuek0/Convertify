@@ -1,0 +1,16 @@
+# Robots.txt для Convertify
+# https://convertify.uz
+
+User-agent: *
+Allow: /
+
+# Запрет индексации служебных путей
+Disallow: /uploads/
+Disallow: /static/js/
+Disallow: /static/css/
+
+# Sitemap
+Sitemap: https://convertify.uz/sitemap.xml
+
+# Хост (для Yandex)
+Host: https://convertify.uz
