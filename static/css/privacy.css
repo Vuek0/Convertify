@@ -1,0 +1,111 @@
+/*
+ * Стили для страницы политики конфиденциальности
+ */
+
+.privacy-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.privacy-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.privacy-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    -webkit-background-clip: text;
+    -webkit-color: transparent;
+    background-clip: text;
+}
+
+.privacy-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.privacy-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border-color);
+}
+
+.privacy-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.privacy-section h2 .icon {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.privacy-section p,
+.privacy-section li {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.privacy-section ul {
+    padding-left: 20px;
+    margin-top: 12px;
+}
+
+.privacy-section li {
+    margin-bottom: 8px;
+}
+
+.highlight-box {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.highlight-box strong {
+    color: var(--primary-color);
+}
+
+[data-theme="dark"] .highlight-box {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 20px;
+    transition: gap 0.2s;
+}
+
+.back-link:hover {
+    gap: 12px;
+}
+
+.last-updated {
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    margin-top: 30px;
+    text-align: center;
+}
