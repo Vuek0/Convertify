@@ -5,11 +5,25 @@ import os
 import uuid
 import tempfile
 from flask import Flask, render_template, request, send_file, jsonify
-from services.converter import convert_image, get_supported_formats
+from services.converter import (
+    convert_file,
+    get_supported_formats,
+    get_input_format_description,
+    get_available_output_formats,
+    INPUT_FORMATS
+)
 
 # Создаём Flask приложение
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB лимит
+
+
+# Все поддерживаемые расширения
+ALL_INPUT_EXTENSIONS = (
+    '.png', '.jpg', '.jpeg',  # изображения
+    '.pdf',                    # PDF
+    '.docx',                   # DOCX
+)
 
 
 @app.route('/')
@@ -17,6 +31,18 @@ def index():
     """Главная страница с формой загрузки."""
     formats = get_supported_formats()
     return render_template('index.html', formats=formats, error=None)
+
+
+@app.route('/api/formats', methods=['GET'])
+def api_formats():
+    """API для получения доступных форматов на основе типа файла."""
+    filename = request.args.get('filename', '')
+    input_type = get_input_format_description(filename)
+    output_formats = get_available_output_formats(input_type)
+    return jsonify({
+        'input_type': input_type,
+        'formats': output_formats
+    })
 
 
 @app.route('/robots.txt')
@@ -31,9 +57,17 @@ def sitemap():
     return send_file('static/sitemap.xml', mimetype='text/xml')
 
 
+@app.route('/privacy')
+def privacy():
+    """Страница политики конфиденциальности."""
+    return render_template('privacy.html')
+
+
 @app.route('/convert', methods=['POST'])
 def convert():
-    """Эндпоинт для конвертации изображения."""
+    """Эндпоинт для конвертации файла."""
+    temp_path = None
+
     if 'image' not in request.files:
         return jsonify({'error': 'Файл не загружен'}), 400
 
@@ -42,8 +76,15 @@ def convert():
     if file.filename == '':
         return jsonify({'error': 'Файл не выбран'}), 400
 
-    if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-        return jsonify({'error': 'Поддерживаются только PNG, JPG, JPEG'}), 400
+    # Проверка расширения
+    if not file.filename.lower().endswith(ALL_INPUT_EXTENSIONS):
+        return jsonify({'error': 'Поддерживаются: PNG, JPG, JPEG, PDF, DOCX'}), 400
+
+    # Определяем тип файла
+    input_type = get_input_format_description(file.filename)
+    
+    if input_type == 'unknown':
+        return jsonify({'error': 'Неподдерживаемый формат файла'}), 400
 
     output_format = request.form.get('format', 'pdf')
 
@@ -54,16 +95,13 @@ def convert():
             temp_path = tmp_file.name
 
         # Конвертируем
-        pdf_bytes, mime_type, ext = convert_image(temp_path, output_format)
-
-        # Удаляем временный файл
-        os.remove(temp_path)
+        result_bytes, mime_type, ext = convert_file(temp_path, input_type, output_format)
 
         # Формируем имя выходного файла
         output_filename = os.path.splitext(file.filename)[0] + ext
 
         return send_file(
-            __import__('io').BytesIO(pdf_bytes),
+            __import__('io').BytesIO(result_bytes),
             mimetype=mime_type,
             as_attachment=True,
             download_name=output_filename
@@ -71,6 +109,14 @@ def convert():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+    finally:
+        # Гарантированное удаление временного файла
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass  # Игнорируем ошибки удаления
 
 
 # Точка входа для Vercel Serverless Functions

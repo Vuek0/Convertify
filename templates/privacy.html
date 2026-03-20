@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Политика конфиденциальности — Convertify</title>
+    <meta name="description" content="Политика конфиденциальности Convertify — мы не храним ваши файлы и не собираем персональные данные">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        .privacy-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .privacy-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .privacy-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            -webkit-background-clip: text;
+            -webkit-color: transparent;
+            background-clip: text;
+        }
+        
+        .privacy-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .privacy-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .privacy-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .privacy-section h2 .icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .privacy-section p, .privacy-section li {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        
+        .privacy-section ul {
+            padding-left: 20px;
+            margin-top: 12px;
+        }
+        
+        .privacy-section li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight-box {
+            background: var(--primary-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .highlight-box strong {
+            color: var(--primary-color);
+        }
+        
+        [data-theme="dark"] .highlight-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: gap 0.2s;
+        }
+        
+        .back-link:hover {
+            gap: 12px;
+        }
+        
+        .last-updated {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-content">
+            <a href="/" class="logo-link">
+                <span class="logo-text">Convertify</span>
+            </a>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" title="Переключить тему">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="privacy-container">
+        <a href="/" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            На главную
+        </a>
+        
+        <div class="privacy-header">
+            <h1>Политика конфиденциальности</h1>
+            <p>Мы ценим вашу приватность и безопасность</p>
+        </div>
+
+        <div class="privacy-section">
+            <h2>
+                <span class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </span>
+                Краткая версия
+            </h2>
+            <p><strong>Мы не храним ваши файлы.</strong> Все загруженные изображения обрабатываются в оперативной памяти и немедленно удаляются после конвертации. Мы не собираем персональные данные и не отслеживаем пользователей.</p>
+            
+            <div class="highlight-box">
+                <strong>🔐 Главное:</strong> Ваши файлы никогда не сохраняются на нашем сервере. Они обрабатываются в ephemeral serverless-окружении Vercel и удаляются сразу после завершения конвертации.
+            </div>
+        </div>
+
+        <div class="privacy-section">
+            <h2>
+                <span class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </span>
+                Как это работает
+            </h2>
+            <p>Когда вы загружаете изображение для конвертации:</p>
+            <ul>
+                <li>Файл временно сохраняется в изолированной serverless-среде Vercel</li>
+                <li>Наш код обрабатывает изображение и создаёт конвертированную версию</li>
+                <li>Конвертированный файл отправляется вам для скачивания</li>
+                <li><strong>Временный файл удаляется немедленно</strong> после отправки ответа</li>
+                <li>Никакие данные не сохраняются в базе данных или хранилище</li>
+            </ul>
+        </div>
+
+        <div class="privacy-section">
+            <h2>
+                <span class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                    </svg>
+                </span>
+                Какие данные мы собираем
+            </h2>
+            <p><strong>Никаких.</strong> Мы не собираем:</p>
+            <ul>
+                <li>Персональные данные (имя, email, телефон)</li>
+                <li>IP-адреса или геолокацию</li>
+                <li>Историю загрузок или конвертаций</li>
+                <li>Cookies для отслеживания</li>
+                <li>Данные об устройстве или браузере</li>
+            </ul>
+            <p style="margin-top: 16px;">Единственные cookies, которые мы используем — это сохранение вашей темы (светлая/тёмная) в localStorage вашего браузера.</p>
+        </div>
+
+        <div class="privacy-section">
+            <h2>
+                <span class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                    </svg>
+                </span>
+                Open Source
+            </h2>
+            <p>Convertify — проект с открытым исходным кодом. Вы можете самостоятельно проверить, как обрабатываются ваши файлы:</p>
+            <ul>
+                <li><a href="https://github.com/Vuek0/Convertify" target="_blank" rel="noopener noreferrer">Исходный код на GitHub</a></li>
+                <li>Логика конвертации: <code>services/converter.py</code></li>
+                <li>Обработчик загрузки: <code>app.py</code></li>
+            </ul>
+        </div>
+
+        <div class="privacy-section">
+            <h2>
+                <span class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </span>
+                Где обрабатываются файлы
+            </h2>
+            <p>Сервис работает на платформе <strong>Vercel Serverless</strong>. Это означает:</p>
+            <ul>
+                <li>Каждый запрос обрабатывается в изолированной среде</li>
+                <li>Временное хранилище (/tmp) очищается после завершения функции</li>
+                <li>Нет постоянного доступа к файловой системе</li>
+                <li>Функция «живёт» только во время обработки запроса</li>
+            </ul>
+        </div>
+
+        <div class="privacy-section">
+            <h2>
+                <span class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </span>
+                Контакты
+            </h2>
+            <p>Если у вас есть вопросы о политике конфиденциальности или безопасности:</p>
+            <ul>
+                <li>Создайте <a href="https://github.com/Vuek0/Convertify/issues" target="_blank" rel="noopener noreferrer">Issue на GitHub</a></li>
+            </ul>
+        </div>
+
+        <p class="last-updated">Последнее обновление: 20 марта 2026 г.</p>
+    </div>
+
+    <script>
+        // Переключатель темы
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = themeToggle.querySelector('.sun-icon');
+        const moonIcon = themeToggle.querySelector('.moon-icon');
+        
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcons(savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcons(newTheme);
+        });
+        
+        function updateThemeIcons(theme) {
+            if (theme === 'dark') {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -7,13 +7,13 @@
  */
 const translations = {
     ru: {
-        "hero.title": "Конвертер изображений",
-        "hero.subtitle": "Быстро и бесплатно конвертируйте PNG, JPG, JPEG в любые форматы",
+        "hero.title": "Конвертер файлов",
+        "hero.subtitle": "Быстро и бесплатно конвертируйте PNG, JPG, PDF, DOCX в любые форматы",
         "features.instant": "Мгновенно",
         "features.safe": "Безопасно",
         "features.free": "Без регистрации",
         "upload.title": "Перетащите файл сюда",
-        "upload.hint": "или кликните для выбора (PNG, JPG, JPEG)<br>Максимальный размер: 16 МБ",
+        "upload.hint": "или кликните для выбора (PNG, JPG, JPEG, PDF, DOCX)<br>Максимальный размер: 16 МБ",
         "form.label": "Формат вывода",
         "formats.pdf": "PDF — Документ PDF",
         "formats.png": "PNG — Изображение PNG",
@@ -21,18 +21,19 @@ const translations = {
         "formats.webp": "WebP — Изображение WebP",
         "formats.ico": "ICO — Иконка",
         "formats.tiff": "TIFF — Изображение TIFF",
+        "formats.docx": "DOCX — Документ Word",
         "button.convert": "Конвертировать",
         "button.converting": "Конвертирование в",
         "error.conversion": "Ошибка конвертации"
     },
     en: {
-        "hero.title": "Image Converter",
-        "hero.subtitle": "Quickly and freely convert PNG, JPG, JPEG to any format",
+        "hero.title": "File Converter",
+        "hero.subtitle": "Quickly and freely convert PNG, JPG, PDF, DOCX to any format",
         "features.instant": "Instant",
         "features.safe": "Secure",
         "features.free": "No registration",
         "upload.title": "Drop file here",
-        "upload.hint": "or click to select (PNG, JPG, JPEG)<br>Max size: 16 MB",
+        "upload.hint": "or click to select (PNG, JPG, JPEG, PDF, DOCX)<br>Max size: 16 MB",
         "form.label": "Output format",
         "formats.pdf": "PDF — PDF Document",
         "formats.png": "PNG — PNG Image",
@@ -40,18 +41,19 @@ const translations = {
         "formats.webp": "WebP — WebP Image",
         "formats.ico": "ICO — Icon",
         "formats.tiff": "TIFF — TIFF Image",
+        "formats.docx": "DOCX — Word Document",
         "button.convert": "Convert",
         "button.converting": "Converting to",
         "error.conversion": "Conversion error"
     },
     uz: {
-        "hero.title": "Rasm Konverteri",
-        "hero.subtitle": "PNG, JPG, JPEG rasmlarini istalgan formatga tez va bepul o'giring",
+        "hero.title": "Fayl Konvertori",
+        "hero.subtitle": "PNG, JPG, PDF, DOCX fayllarini istalgan formatga tez va bepul o'giring",
         "features.instant": "Tez",
         "features.safe": "Xavfsiz",
         "features.free": "Ro'yxatdan o'tish shart emas",
         "upload.title": "Faylni bu yerga tashlang",
-        "upload.hint": "yoki tanlash uchun bosing (PNG, JPG, JPEG)<br>Maksimal hajm: 16 MB",
+        "upload.hint": "yoki tanlash uchun bosing (PNG, JPG, JPEG, PDF, DOCX)<br>Maksimal hajm: 16 MB",
         "form.label": "Chiqish formati",
         "formats.pdf": "PDF — PDF Hujjati",
         "formats.png": "PNG — PNG Rasm",
@@ -59,6 +61,7 @@ const translations = {
         "formats.webp": "WebP — WebP Rasm",
         "formats.ico": "ICO — Ikonka",
         "formats.tiff": "TIFF — TIFF Rasm",
+        "formats.docx": "DOCX — Word Hujjati",
         "button.convert": "Konvertatsiya",
         "button.converting": "Konvertatsiya qilinmoqda",
         "error.conversion": "Konvertatsiya xatosi"
@@ -240,9 +243,55 @@ function updateFilePreview() {
         document.getElementById('fileSize').textContent = formatFileSize(file.size);
         document.getElementById('filePreview').classList.add('show');
         document.getElementById('convertBtn').disabled = false;
+        
+        // Обновляем доступные форматы на основе типа файла
+        updateAvailableFormats(file.name);
     } else {
         document.getElementById('filePreview').classList.remove('show');
         document.getElementById('convertBtn').disabled = true;
+    }
+}
+
+/**
+ * Обновление доступных форматов на основе типа файла
+ */
+async function updateAvailableFormats(filename) {
+    try {
+        const response = await fetch(`/api/formats?filename=${encodeURIComponent(filename)}`);
+        const data = await response.json();
+        
+        const selectOptions = document.getElementById('selectOptions');
+        const formatSelect = document.getElementById('formatSelect');
+        const selectValue = document.getElementById('selectValue');
+        
+        if (!selectOptions || !formatSelect) return;
+        
+        // Сохраняем текущий выбранный формат если возможно
+        const currentFormat = formatSelect.value;
+        
+        // Очищаем текущие опции
+        selectOptions.innerHTML = '';
+        
+        // Добавляем новые опции
+        data.formats.forEach((format, index) => {
+            const option = document.createElement('div');
+            option.className = 'select-option';
+            option.dataset.value = format.id;
+            option.textContent = `${format.name} — ${format.description}`;
+            
+            if (index === 0) {
+                option.classList.add('selected');
+                formatSelect.value = format.id;
+                if (selectValue) {
+                    selectValue.textContent = option.textContent;
+                }
+            }
+            
+            selectOptions.appendChild(option);
+        });
+        
+    } catch (error) {
+        console.error('Error fetching formats:', error);
     }
 }
 
@@ -267,6 +316,14 @@ function initFormSubmit() {
             return;
         }
 
+        // Проверка размера файла (16MB лимит)
+        const file = fileInput.files[0];
+        const maxSize = 16 * 1024 * 1024; // 16MB
+        if (file.size > maxSize) {
+            showError('Файл слишком большой. Максимальный размер: 16 МБ (ограничение Vercel)');
+            return;
+        }
+
         convertBtn.disabled = true;
         const selectedFormat = formatSelect.value;
         const convertingText = getTranslation('button.converting', 'Converting to');
@@ -280,13 +337,29 @@ function initFormSubmit() {
                 body: formData
             });
 
+            // Проверяем, является ли ответ JSON
+            const contentType = response.headers.get('content-type');
+            
             if (!response.ok) {
-                const errorData = await response.json();
-                const errorText = getTranslation('error.conversion', 'Conversion error');
-                throw new Error(errorData.error || errorText);
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Ошибка конвертации');
+                } else if (response.status === 413) {
+                    throw new Error('Файл слишком большой. Максимальный размер: 16 МБ');
+                } else if (response.status === 504) {
+                    throw new Error('Превышено время ожидания. Попробуйте файл меньшего размера');
+                } else {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
             }
 
             const blob = await response.blob();
+            
+            // Проверяем, не является ли blob ошибкой
+            if (blob.type.includes('text/html')) {
+                throw new Error('Ошибка сервера. Попробуйте позже');
+            }
+
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -303,10 +376,50 @@ function initFormSubmit() {
 
             resetButtonState();
         } catch (error) {
-            alert('Ошибка: ' + error.message);
+            showError(error.message);
             resetButtonState();
         }
     });
+}
+
+/**
+ * Показ ошибки на странице
+ */
+function showError(message) {
+    // Удаляем существующие ошибки
+    const existingError = document.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+
+    // Создаём новый элемент ошибки
+    const errorEl = document.createElement('div');
+    errorEl.className = 'error-message';
+    errorEl.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <span>${message}</span>
+        <button class="error-close" onclick="this.parentElement.remove()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+        </button>
+    `;
+
+    // Вставляем после hero секции
+    const hero = document.querySelector('.hero');
+    hero.insertAdjacentElement('afterend', errorEl);
+
+    // Авто-скрытие через 10 секунд
+    setTimeout(() => {
+        if (errorEl.parentElement) {
+            errorEl.style.opacity = '0';
+            errorEl.style.transform = 'translateY(-10px)';
+            setTimeout(() => errorEl.remove(), 300);
+        }
+    }, 10000);
 }
 
 function resetButtonState() {
@@ -329,7 +442,6 @@ function initCustomSelect() {
     const selectOptions = document.getElementById('selectOptions');
     const selectValue = document.getElementById('selectValue');
     const formatSelect = document.getElementById('formatSelect');
-    const options = document.querySelectorAll('.select-option');
 
     // Закрытие при клике вне select
     document.addEventListener('click', (e) => {
@@ -344,22 +456,23 @@ function initCustomSelect() {
         toggleSelect();
     });
 
-    // Клик по опции
-    options.forEach((option) => {
-        option.addEventListener('click', () => {
-            const value = option.dataset.value;
-            const text = option.textContent;
+    // Клик по опциям (event delegation)
+    selectOptions.addEventListener('click', (e) => {
+        const option = e.target.closest('.select-option');
+        if (!option || !selectOptions.contains(option)) return;
+        
+        const value = option.dataset.value;
+        const text = option.textContent;
 
-            // Обновляем значение
-            selectValue.textContent = text;
-            formatSelect.value = value;
+        // Обновляем значение
+        selectValue.textContent = text;
+        formatSelect.value = value;
 
-            // Обновляем выделение
-            options.forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
+        // Обновляем выделение
+        selectOptions.querySelectorAll('.select-option').forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
 
-            closeSelect();
-        });
+        closeSelect();
     });
 
     function toggleSelect() {
@@ -383,7 +496,7 @@ function initCustomSelect() {
 
     // Инициализация выбранного значения
     const currentValue = formatSelect.value;
-    const selectedOption = document.querySelector(`.select-option[data-value="${currentValue}"]`);
+    const selectedOption = selectOptions.querySelector(`.select-option[data-value="${currentValue}"]`);
     if (selectedOption) {
         selectValue.textContent = selectedOption.textContent;
         selectedOption.classList.add('selected');
