@@ -1,31 +1,38 @@
 """
 Конвертация PDF в изображения и DOCX.
+Lazy импорты для ускорения загрузки модуля.
 """
 import io
-import fitz  # PyMuPDF
-from pdf2docx import Converter as PDF2DocxConverter
+from typing import TYPE_CHECKING
 
 from .config import PDF_RENDER_ZOOM
+
+# Lazy импорты — загружаются только при использовании
+if TYPE_CHECKING:
+    import fitz
+    from pdf2docx import Converter as PDF2DocxConverter
+
+
+def _get_fitz():
+    """Ленивый импорт PyMuPDF."""
+    import fitz  # PyMuPDF
+    return fitz
+
+
+def _get_pdf2docx():
+    """Ленивый импорт pdf2docx."""
+    from pdf2docx import Converter as PDF2DocxConverter
+    return PDF2DocxConverter
 
 
 def convert_pdf_to_image(pdf_path: str, output_format: str, page_number: int = 0) -> tuple[bytes, str, str]:
     """
     Конвертирует PDF в изображение.
-
-    Args:
-        pdf_path: Путь к PDF файлу
-        output_format: Целевой формат ('png' или 'jpeg')
-        page_number: Номер страницы (0-based)
-
-    Returns:
-        Кортеж (байты файла, MIME тип, расширение)
-
-    Raises:
-        ValueError: Если формат не поддерживается
     """
     if output_format not in ['png', 'jpeg']:
         raise ValueError(f"PDF можно конвертировать только в PNG или JPEG")
 
+    fitz = _get_fitz()
     doc = fitz.open(pdf_path)
 
     # Проверяем номер страницы
@@ -51,14 +58,9 @@ def convert_pdf_to_image(pdf_path: str, output_format: str, page_number: int = 0
 def convert_pdf_to_docx(pdf_path: str) -> tuple[bytes, str, str]:
     """
     Конвертирует PDF в DOCX (Word документ).
-
-    Args:
-        pdf_path: Путь к PDF файлу
-
-    Returns:
-        Кортеж (байты файла, MIME тип, расширение)
     """
     buffer = io.BytesIO()
+    PDF2DocxConverter = _get_pdf2docx()
 
     # Конвертируем PDF в DOCX
     cv = PDF2DocxConverter(pdf_path)

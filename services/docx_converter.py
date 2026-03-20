@@ -5,36 +5,28 @@ import io
 import os
 import tempfile
 from docx import Document
-from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 
-from .config import FONT_ROBOTO, PDF_FONT_SIZE, PDF_LINE_HEIGHT
+from .font_manager import font_manager
 from .pdf_converter import convert_pdf_to_image
 
 
 def convert_docx_to_pdf(docx_path: str) -> tuple[bytes, str, str]:
     """
     Конвертирует DOCX в PDF с поддержкой кириллицы.
-
-    Args:
-        docx_path: Путь к DOCX файлу
-
-    Returns:
-        Кортеж (байты файла, MIME тип, расширение)
+    Использует кэшированный шрифт Roboto.
     """
     doc = Document(docx_path)
     buffer = io.BytesIO()
     pdf_doc = SimpleDocTemplate(buffer, pagesize=A4)
+    
+    from reportlab.lib.styles import getSampleStyleSheet
     styles = getSampleStyleSheet()
     story = []
 
-    # Регистрируем шрифт Roboto для кириллицы
-    cyrillic_style = _get_cyrillic_style(styles)
+    # Получаем стиль с кэшированным шрифтом
+    cyrillic_style = font_manager.get_cyrillic_style(styles)
 
     # Добавляем параграфы
     for paragraph in doc.paragraphs:
@@ -69,16 +61,6 @@ def convert_docx_to_pdf(docx_path: str) -> tuple[bytes, str, str]:
 def convert_docx_to_image(docx_path: str, output_format: str) -> tuple[bytes, str, str]:
     """
     Конвертирует DOCX в изображение (через PDF).
-
-    Args:
-        docx_path: Путь к DOCX файлу
-        output_format: Целевой формат ('png' или 'jpeg')
-
-    Returns:
-        Кортеж (байты файла, MIME тип, расширение)
-
-    Raises:
-        ValueError: Если формат не поддерживается
     """
     if output_format not in ['png', 'jpeg']:
         raise ValueError(f"DOCX можно конвертировать только в PNG или JPEG")
@@ -98,30 +80,3 @@ def convert_docx_to_image(docx_path: str, output_format: str) -> tuple[bytes, st
         os.remove(tmp_pdf_path)
 
     return img_data, mime_type, ext
-
-
-def _get_cyrillic_style(styles) -> ParagraphStyle:
-    """
-    Получает стиль параграфа с поддержкой кириллицы.
-
-    Args:
-        styles: Менеджер стилей reportlab
-
-    Returns:
-        Стиль параграфа с кириллическим шрифтом
-    """
-    try:
-        if os.path.exists(FONT_ROBOTO):
-            pdfmetrics.registerFont(TTFont('Roboto', FONT_ROBOTO))
-            return ParagraphStyle(
-                'CyrillicNormal',
-                parent=styles['Normal'],
-                fontName='Roboto',
-                fontSize=PDF_FONT_SIZE,
-                leading=PDF_LINE_HEIGHT
-            )
-    except Exception as e:
-        print(f"Warning: Font registration error: {e}")
-
-    # Fallback на стандартный стиль
-    return styles['Normal']

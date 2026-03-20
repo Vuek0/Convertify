@@ -16,6 +16,9 @@ from .config import (
     IS_VERCEL,
 )
 
+# Менеджер шрифтов (кэширование)
+from .font_manager import font_manager
+
 # Валидация
 from .validators import (
     get_file_extension,
@@ -45,7 +48,6 @@ from .file_handler import (
     save_uploaded_file,
     delete_file,
     cleanup_files,
-    get_file_extension,
     generate_output_filename,
 )
 
@@ -69,6 +71,9 @@ __all__ = [
     'FONTS_DIR',
     'FONT_ROBOTO',
     'IS_VERCEL',
+    
+    # Font Manager
+    'font_manager',
     
     # Validators
     'get_file_extension',
