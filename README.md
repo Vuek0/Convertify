@@ -3,12 +3,11 @@
 Современный веб-конвертер файлов с красивым анимированным интерфейсом.
 
 **URL:** [convertify.uz](https://convertify.uz)  
-**Версия:** 1.1.0
+**Версия:** 1.0.1
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0-green.svg)](https://flask.palletsprojects.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Fast](https://img.shields.io/badge/Optimized-Performance-brightgreen)](#-performance)
 
 ## 🔐 Безопасность
 
@@ -54,10 +53,10 @@
 
 ### Конвертация
 
-| Входной формат     | Выходные форматы                | Описание                          |
-| ------------------ | ------------------------------- | --------------------------------- |
-| **PNG, JPG, JPEG** | PDF, PNG, JPEG, WebP, ICO, TIFF | Конвертация изображений           |
-| **PDF**            | PNG, JPEG, DOCX                 | PDF в изображения или Word        |
+| Входной формат     | Выходные форматы                | Описание                                  |
+| ------------------ | ------------------------------- | ----------------------------------------- |
+| **PNG, JPG, JPEG** | PDF, PNG, JPEG, WebP, ICO, TIFF | Конвертация изображений                   |
+| **PDF**            | PNG, JPEG, DOCX                 | PDF в изображения или Word                |
 | **DOCX**           | PDF, PNG, JPEG                  | Word в PDF или изображения (кириллица ✅) |
 
 ### Технические особенности
@@ -72,27 +71,10 @@
 
 ---
 
-## ⚡ Performance
-
-**Оптимизации производительности:**
-
-| Оптимизация | Описание | Прирост |
-| ----------- | -------- | ------- |
-| 🔥 **Font Caching** | Шрифт Roboto регистрируется 1 раз при старте | 60-65% для DOCX |
-| 🚀 **Lazy Imports** | Тяжёлые библиотеки (fitz, pdf2docx) импортируются по требованию | 40-50% холодный старт |
-| 💾 **Memory Optimization** | Принудительная загрузка изображений с `img.load()` | 20-35% для изображений |
-| 🗄️ **API Caching** | `lru_cache` для функций форматов | 70-80% для API |
-
-**Результат:**
-- Холодный старт: **~200-300ms** (вместо 2-3 сек)
-- Конвертация DOCX → PDF: **~50-80ms** (вместо 150-200ms)
-- API `/api/formats`: **~1-2ms** (вместо 5-10ms)
-
----
-
 ## 🛠️ Технологии
 
 ### Frontend
+
 ```
 ├── HTML5 + CSS3 (CSS Variables, Animations, Gradients)
 ├── Vanilla JavaScript (ES6+)
@@ -101,6 +83,7 @@
 ```
 
 ### Backend
+
 ```
 ├── Python 3.8+
 ├── Flask 3.0
@@ -226,12 +209,6 @@ python app.py
               │  (ephemeral storage)  │
               └───────────────────────┘
 ```
-
----
-
-## 📝 Лицензия
-
-MIT License — см. файл [LICENSE](LICENSE)
 
 ---
 
