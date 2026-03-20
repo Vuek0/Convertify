@@ -1,49 +1,56 @@
 """
 Основное приложение Flask для Convertify.
+Содержит только маршруты (routes). Бизнес-логика вынесена в services.
 """
-import os
-import uuid
-import tempfile
-from urllib.parse import quote
-from flask import Flask, render_template, request, send_file, jsonify
-from services.converter import (
-    convert_file,
+from flask import Flask, render_template, request, send_file
+
+from services import (
+    # Форматы
     get_supported_formats,
-    get_input_format_description,
     get_available_output_formats,
-    INPUT_FORMATS
+    get_formats_for_file,
+    is_valid_output_format,
+    
+    # Валидация
+    validate_file,
+    get_input_type,
+    
+    # Обработка файлов
+    save_uploaded_file,
+    delete_file,
+    generate_output_filename,
+    
+    # Конвертация
+    convert_file,
+    
+    # HTTP ответы
+    create_file_response,
+    create_error_response,
+    create_json_response,
+    
+    # Конфигурация
+    MAX_FILE_SIZE_BYTES,
 )
+
 
 # Создаём Flask приложение
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB лимит
-
-
-# Все поддерживаемые расширения
-ALL_INPUT_EXTENSIONS = (
-    '.png', '.jpg', '.jpeg',  # изображения
-    '.pdf',                    # PDF
-    '.docx',                   # DOCX
-)
+app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE_BYTES
 
 
 @app.route('/')
 def index():
     """Главная страница с формой загрузки."""
     formats = get_supported_formats()
-    return render_template('index.html', formats=formats, error=None)
+    return render_template('index.html', formats=formats)
 
 
 @app.route('/api/formats', methods=['GET'])
 def api_formats():
     """API для получения доступных форматов на основе типа файла."""
     filename = request.args.get('filename', '')
-    input_type = get_input_format_description(filename)
-    output_formats = get_available_output_formats(input_type)
-    return jsonify({
-        'input_type': input_type,
-        'formats': output_formats
-    })
+    formats_data = get_formats_for_file(filename)
+    return create_json_response(formats_data)
 
 
 @app.route('/robots.txt')
@@ -68,64 +75,51 @@ def privacy():
 def convert():
     """Эндпоинт для конвертации файла."""
     temp_path = None
-
-    if 'image' not in request.files:
-        return jsonify({'error': 'Файл не загружен'}), 400
-
-    file = request.files['image']
-
-    if file.filename == '':
-        return jsonify({'error': 'Файл не выбран'}), 400
-
-    # Проверка расширения
-    if not file.filename.lower().endswith(ALL_INPUT_EXTENSIONS):
-        return jsonify({'error': 'Поддерживаются: PNG, JPG, JPEG, PDF, DOCX'}), 400
-
-    # Определяем тип файла
-    input_type = get_input_format_description(file.filename)
     
-    if input_type == 'unknown':
-        return jsonify({'error': 'Неподдерживаемый формат файла'}), 400
-
-    output_format = request.form.get('format', 'pdf')
-
     try:
-        # Используем временную директорию (для Vercel это /tmp)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp_file:
-            file.save(tmp_file.name)
-            temp_path = tmp_file.name
-
-        # Конвертируем
+        # Проверка наличия файла
+        if 'image' not in request.files:
+            return create_error_response('Файл не загружен', 400)
+        
+        file = request.files['image']
+        
+        if not file.filename:
+            return create_error_response('Файл не выбран', 400)
+        
+        # Валидация файла
+        is_valid, input_type, error = validate_file(file.filename, len(file.stream.read()))
+        file.stream.seek(0)  # Сбрасываем поток для последующего чтения
+        
+        if not is_valid:
+            return create_error_response(error, 400)
+        
+        # Получение формата вывода
+        output_format = request.form.get('format', 'pdf')
+        
+        # Проверка допустимости формата
+        if not is_valid_output_format(input_type, output_format):
+            return create_error_response(f"Невозможно конвертировать в {output_format}", 400)
+        
+        # Сохранение файла
+        temp_path, original_filename = save_uploaded_file(file)
+        
+        # Конвертация
         result_bytes, mime_type, ext = convert_file(temp_path, input_type, output_format)
-
-        # Формируем имя выходного файла (с правильной кодировкой для кириллицы)
-        output_filename = os.path.splitext(file.filename)[0] + ext
         
-        # Кодируем имя для заголовка Content-Disposition (RFC 5987)
-        encoded_filename = quote(output_filename.encode('utf-8'))
+        # Генерация имени выходного файла
+        output_filename = generate_output_filename(original_filename, ext)
         
-        response = send_file(
-            __import__('io').BytesIO(result_bytes),
-            mimetype=mime_type,
-            as_attachment=True,
-            download_name=output_filename
-        )
+        # Возврат файла
+        return create_file_response(result_bytes, mime_type, output_filename)
         
-        # Добавляем заголовок с правильной кодировкой для кириллицы
-        response.headers['Content-Disposition'] = f'attachment; filename*=UTF-8\'\'{encoded_filename}'
-        
-        return response
-
+    except ValueError as e:
+        return create_error_response(str(e), 400)
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
+        return create_error_response(f"Ошибка конвертации: {str(e)}", 500)
     finally:
         # Гарантированное удаление временного файла
-        if temp_path and os.path.exists(temp_path):
-            try:
-                os.remove(temp_path)
-            except OSError:
-                pass  # Игнорируем ошибки удаления
+        if temp_path:
+            delete_file(temp_path)
 
 
 # Точка входа для Vercel Serverless Functions
