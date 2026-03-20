@@ -27,6 +27,9 @@ uploads/*
 !static/apple-touch-icon.png
 !static/og-image.png
 !static/*.png
+# Кроме шрифтов
+!fonts/*.ttf
+!fonts/*.otf
 
 # OS
 .DS_Store

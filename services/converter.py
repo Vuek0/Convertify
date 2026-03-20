@@ -116,18 +116,47 @@ def convert_pdf_to_docx(pdf_path: str) -> tuple[bytes, str, str]:
 
 def convert_docx_to_pdf(docx_path: str) -> tuple[bytes, str, str]:
     """
-    Конвертирует DOCX в PDF через reportlab.
+    Конвертирует DOCX в PDF через reportlab с поддержкой кириллицы.
+    Использует шрифт Roboto из папки проекта.
     """
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.lib.styles import ParagraphStyle
+    import os
+    
     doc = Document(docx_path)
     buffer = io.BytesIO()
     pdf_doc = SimpleDocTemplate(buffer, pagesize=A4)
     styles = getSampleStyleSheet()
     story = []
+    
+    # Путь к шрифту Roboto (поддержка кириллицы)
+    current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    font_path = os.path.join(current_dir, 'fonts', 'Roboto-Regular.ttf')
+    
+    # Регистрируем шрифт
+    try:
+        if os.path.exists(font_path):
+            pdfmetrics.registerFont(TTFont('Roboto', font_path))
+            cyrillic_style = ParagraphStyle(
+                'CyrillicNormal',
+                parent=styles['Normal'],
+                fontName='Roboto',
+                fontSize=11,
+                leading=14
+            )
+        else:
+            # Шрифт не найден, используем стандартный (может не поддерживать кириллицу)
+            cyrillic_style = styles['Normal']
+    except Exception as e:
+        print(f"Warning: Font error: {e}")
+        cyrillic_style = styles['Normal']
 
     # Добавляем параграфы
     for paragraph in doc.paragraphs:
         if paragraph.text.strip():
-            p = Paragraph(paragraph.text, styles['Normal'])
+            text = paragraph.text
+            p = Paragraph(text, cyrillic_style)
             story.append(p)
             story.append(Spacer(1, 6))
 

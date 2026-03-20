@@ -364,9 +364,23 @@ function initFormSubmit() {
             const a = document.createElement('a');
             a.href = url;
 
-            const filename = response.headers.get('Content-Disposition')
-                ? response.headers.get('Content-Disposition').split('filename=')[1].replace(/"/g, '')
-                : `converted.${selectedFormat}`;
+            // Получаем имя файла из заголовка Content-Disposition
+            let filename = `converted.${selectedFormat}`;
+            const contentDisposition = response.headers.get('Content-Disposition');
+            
+            if (contentDisposition) {
+                // Пробуем получить имя из filename*=UTF-8''encoded (для кириллицы)
+                const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.+)/);
+                if (utf8Match && utf8Match[1]) {
+                    filename = decodeURIComponent(utf8Match[1]);
+                } else {
+                    // Fallback для обычного filename
+                    const parts = contentDisposition.split('filename=');
+                    if (parts.length > 1) {
+                        filename = parts[1].replace(/"/g, '').trim();
+                    }
+                }
+            }
 
             a.download = filename;
             document.body.appendChild(a);

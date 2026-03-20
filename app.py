@@ -4,6 +4,7 @@
 import os
 import uuid
 import tempfile
+from urllib.parse import quote
 from flask import Flask, render_template, request, send_file, jsonify
 from services.converter import (
     convert_file,
@@ -97,15 +98,23 @@ def convert():
         # Конвертируем
         result_bytes, mime_type, ext = convert_file(temp_path, input_type, output_format)
 
-        # Формируем имя выходного файла
+        # Формируем имя выходного файла (с правильной кодировкой для кириллицы)
         output_filename = os.path.splitext(file.filename)[0] + ext
-
-        return send_file(
+        
+        # Кодируем имя для заголовка Content-Disposition (RFC 5987)
+        encoded_filename = quote(output_filename.encode('utf-8'))
+        
+        response = send_file(
             __import__('io').BytesIO(result_bytes),
             mimetype=mime_type,
             as_attachment=True,
             download_name=output_filename
         )
+        
+        # Добавляем заголовок с правильной кодировкой для кириллицы
+        response.headers['Content-Disposition'] = f'attachment; filename*=UTF-8\'\'{encoded_filename}'
+        
+        return response
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
